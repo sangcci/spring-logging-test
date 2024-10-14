@@ -7,13 +7,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import sangcci.springloggingtest.common.logtracer.ThreadLocalTraceIdHolder;
-import sangcci.springloggingtest.common.logtracer.TraceId;
-import sangcci.springloggingtest.common.logtracer.TraceIdHolder;
+import sangcci.springloggingtest.common.logtracer.ThreadLocalTraceStatusHolder;
+import sangcci.springloggingtest.common.logtracer.TraceStatus;
+import sangcci.springloggingtest.common.logtracer.TraceStatusHolder;
 
 public class TraceIdConcurrencyTest {
 
-    private final TraceIdHolder traceIdHolder = new ThreadLocalTraceIdHolder();;
+    private final TraceStatusHolder traceStatusHolder = new ThreadLocalTraceStatusHolder();
 
     @Test
     void id_concurrency_test() throws ExecutionException, InterruptedException {
@@ -21,10 +21,13 @@ public class TraceIdConcurrencyTest {
         ExecutorService executorService = Executors.newFixedThreadPool(5);
 
         // when
-        Set<TraceId> traceIds = new HashSet<>();
+        Set<String> traceIds = new HashSet<>();
         for (int i = 0; i < 5; i++) {
-            TraceId traceId = executorService.submit(traceIdHolder::getTraceId)
-                    .get();
+            String traceId = executorService.submit(() -> {
+                TraceStatus traceStatus = traceStatusHolder.getTraceStatus();
+                return traceStatus.getId();
+            }).get();
+
             traceIds.add(traceId);
         }
 

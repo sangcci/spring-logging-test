@@ -9,25 +9,54 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class LogTracer {
 
-    private final TraceIdHolder traceIdHolder;
+    private static final String START_PREFIX = "-->";
+    private static final String COMPLETE_PREFIX = "<--";
+    private static final String ERR_PREFIX = "<X-";
+
+    private final TraceStatusHolder traceStatusHolder;
 
     public Long startTrace(String methodName, Long startTime) {
-        // 1. trace id 생성
-        TraceId traceId = traceIdHolder.getTraceId();
+        // 1 - get traceStatus
+        TraceStatus traceStatus = traceStatusHolder.getTraceStatus();
 
-        // 2. logging
-        log.info("[{}] {}", traceId.getId(), methodName);
+        // 2 - get id and level
+        String traceId = traceStatus.getId();
+        int level = traceStatus.getAndIncrement();
+
+        // 3 - convert level to space
+        StringBuilder space = new StringBuilder();
+        for (int i = 0; i < level; i++) {
+            space.append("|  ");
+        }
+        space.append("|").append(START_PREFIX);
+
+        // 4 - logging
+        log.info("[{}]{} {}", traceId, space, methodName);
 
         return startTime;
     }
 
     public void endTrace(String methodName, Long startTime) {
-        // 1. traceId get
-        TraceId traceId = traceIdHolder.getTraceId();
+        // 1 - get traceStatus
+        TraceStatus traceStatus = traceStatusHolder.getTraceStatus();
 
+        // 2 - get id and level
+        String traceId = traceStatus.getId();
+        int level = traceStatus.getAndDecrement();
+
+        // 3 - get end time
         long endTime = System.currentTimeMillis();
-        log.info("[{}] {} | time: {} ms",
-                traceId.getId(),
+
+        // 4 - convert level to space
+        StringBuilder space = new StringBuilder();
+        for (int i = 0; i < level; i++) {
+            space.append("|  ");
+        }
+        space.append("|").append(COMPLETE_PREFIX);
+
+        log.info("[{}]{} {} | time: {} ms",
+                traceId,
+                space,
                 methodName,
                 endTime - startTime);
     }
