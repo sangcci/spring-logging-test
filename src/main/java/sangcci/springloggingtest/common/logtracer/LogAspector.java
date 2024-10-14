@@ -20,12 +20,12 @@ public class LogAspector {
     )
     private void all() {}
 
-    @Around("application()")
+    @Around("all()")
     public Object logging(ProceedingJoinPoint joinPoint) throws Throwable {
-        String methodName = joinPoint.getSignature().getDeclaringTypeName();
-        Long startTime = null;
+        String methodName = joinPoint.getSignature().toShortString();
+        Long startTime = System.currentTimeMillis();
         try {
-            startTime = logTracer.startTrace(methodName);
+            logTracer.startTrace(methodName, startTime);
             return joinPoint.proceed();
         } finally {
             logTracer.endTrace(methodName, startTime);

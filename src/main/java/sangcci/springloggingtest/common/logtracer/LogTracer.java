@@ -9,22 +9,26 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class LogTracer {
 
-    public Long startTrace(String methodName) {
+    private final TraceIdHolder traceIdHolder;
+
+    public Long startTrace(String methodName, Long startTime) {
         // 1. trace id 생성
-
-
-        // start time 생성
-        Long startTime = System.currentTimeMillis();
+        TraceId traceId = traceIdHolder.getTraceId();
 
         // 2. logging
-        log.info("{}", methodName);
+        log.info("[{}] {}", traceId.getId(), methodName);
 
         return startTime;
     }
 
     public void endTrace(String methodName, Long startTime) {
         // 1. traceId get
+        TraceId traceId = traceIdHolder.getTraceId();
+
         long endTime = System.currentTimeMillis();
-        log.info("{} | time: {} ms", methodName, endTime - startTime);
+        log.info("[{}] {} | time: {} ms",
+                traceId.getId(),
+                methodName,
+                endTime - startTime);
     }
 }
