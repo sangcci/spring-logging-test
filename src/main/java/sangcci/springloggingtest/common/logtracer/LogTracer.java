@@ -15,7 +15,7 @@ public class LogTracer {
 
     private final TraceStatusHolder traceStatusHolder;
 
-    public Long startTrace(String methodName, Long startTime) {
+    public void startTrace(String methodName) {
         // 1 - get traceStatus
         TraceStatus traceStatus = traceStatusHolder.getTraceStatus();
 
@@ -24,16 +24,11 @@ public class LogTracer {
         int level = traceStatus.getAndIncrement();
 
         // 3 - convert level to space
-        StringBuilder space = new StringBuilder();
-        for (int i = 0; i < level; i++) {
-            space.append("|  ");
-        }
-        space.append("|").append(START_PREFIX);
+        String space = convertLevelToSpace(level);
 
         // 4 - logging
-        log.info("[{}]{} {}", traceId, space, methodName);
-
-        return startTime;
+        log.info("[{}]{}|{} {}",
+                traceId, space, START_PREFIX, methodName);
     }
 
     public void endTrace(String methodName, Long startTime) {
@@ -48,16 +43,13 @@ public class LogTracer {
         long endTime = System.currentTimeMillis();
 
         // 4 - convert level to space
-        StringBuilder space = new StringBuilder();
-        for (int i = 0; i < level; i++) {
-            space.append("|  ");
-        }
-        space.append("|").append(COMPLETE_PREFIX);
+        String space = convertLevelToSpace(level);
 
-        log.info("[{}]{} {} | time: {} ms",
-                traceId,
-                space,
-                methodName,
-                endTime - startTime);
+        log.info("[{}]{}|{} {} | time: {} ms",
+                traceId, space, COMPLETE_PREFIX, methodName, endTime - startTime);
+    }
+
+    private String convertLevelToSpace(int level) {
+        return "|  ".repeat(Math.max(0, level));
     }
 }
