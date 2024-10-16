@@ -2,7 +2,6 @@ package sangcci.springloggingtest.common.querycounter;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.sql.Connection;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,14 +14,15 @@ public class ConnectionProxy implements InvocationHandler {
 
     @Override
     public Object invoke(Object obj, Method method, Object[] args) throws Throwable {
-        Connection connection = (Connection) obj;
         if (method.getName().equals("prepareStatement")) {
             log.info("query log: {}", args[0]);
             queryCounter.increment();
         }
 
         if (method.getName().equals("close")) {
-            log.info("query count: {}", queryCounter.getCount());
+            if (queryCounter.getCount() >= 1) {
+                log.info("query count: {}", queryCounter.getCount());
+            }
         }
 
         return method.invoke(target, args);
