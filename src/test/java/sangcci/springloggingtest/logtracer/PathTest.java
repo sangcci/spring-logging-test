@@ -1,4 +1,4 @@
-package sangcci.springloggingtest;
+package sangcci.springloggingtest.logtracer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
