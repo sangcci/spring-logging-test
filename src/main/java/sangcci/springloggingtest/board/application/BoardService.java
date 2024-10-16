@@ -27,6 +27,8 @@ public class BoardService {
                 .map(BoardRequest::toEntity)
                 .toList();
 
+        boards.forEach(Board::validateContent);
+
         boardRepository.saveAll(boards);
     }
 }

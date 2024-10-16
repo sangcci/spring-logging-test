@@ -31,6 +31,20 @@ public class LogTracer {
                 traceId, space, START_PREFIX, methodName);
     }
 
+    public void exceptionTrace(String methodName, Throwable throwable) {
+        TraceStatus traceStatus = traceStatusHolder.getTraceStatus();
+
+        String traceId = traceStatus.getId();
+        int level = traceStatus.getAndDecrement();
+
+        String space = convertLevelToSpace(level);
+
+        log.info("[{}]{}|{} {}",
+                traceId, space, ERR_PREFIX, methodName);
+
+        log.info("e: {}", throwable.getMessage());
+    }
+
     public void endTrace(String methodName, Long startTime) {
         // 1 - get traceStatus
         TraceStatus traceStatus = traceStatusHolder.getTraceStatus();

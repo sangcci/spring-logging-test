@@ -8,6 +8,8 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import sangcci.springloggingtest.board.exception.BoardErrorCode;
+import sangcci.springloggingtest.board.exception.BoardException;
 
 @Entity
 @Getter
@@ -26,5 +28,11 @@ public class Board {
     public Board(String title, String content) {
         this.title = title;
         this.content = content;
+    }
+
+    public void validateContent() {
+        if (content.contains("불건전한 말")) {
+            throw new BoardException(BoardErrorCode.NOT_ALLOW_CONTENT);
+        }
     }
 }

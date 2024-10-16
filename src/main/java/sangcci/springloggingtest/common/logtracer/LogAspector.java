@@ -24,12 +24,19 @@ public class LogAspector {
     public Object logging(ProceedingJoinPoint joinPoint) throws Throwable {
         String methodName = joinPoint.getSignature().toShortString();
         Long startTime = System.currentTimeMillis();
+        boolean catchException = false;
 
         try {
             logTracer.startTrace(methodName);
             return joinPoint.proceed();
+        } catch(Exception e) {
+            logTracer.exceptionTrace(methodName, e);
+            catchException = true;
+            throw e;
         } finally {
-            logTracer.endTrace(methodName, startTime);
+            if (!catchException) {
+                logTracer.endTrace(methodName, startTime);
+            }
         }
     }
 }
