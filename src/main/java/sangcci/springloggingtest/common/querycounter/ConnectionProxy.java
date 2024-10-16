@@ -23,6 +23,9 @@ public class ConnectionProxy implements InvocationHandler {
             if (queryCounter.getCount() >= 1) {
                 log.info("query count: {}", queryCounter.getCount());
             }
+            if (queryCounter.isWarn()) {
+                log.warn("warning!! too many queries");
+            }
         }
 
         return method.invoke(target, args);
